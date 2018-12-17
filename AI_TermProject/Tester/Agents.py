@@ -77,7 +77,6 @@ class SimpleReinforcementAgent(textworld.Agent):
         learner = pybrain.rl.learners.Q()
         agent = pybrain.rl.agents.LearningAgent(controller, learner)
         self.pybrain_rlAgent = agent
-        self.currentIntermediateReward = 0.5
         self.stateDictionary = {}
         self.hasHistory = False
         
@@ -102,13 +101,11 @@ class SimpleReinforcementAgent(textworld.Agent):
             Text command to be performed in this current state.
         """
         if self.hasHistory:
-            self.currentIntermediateReward += game_state.intermediate_reward
-            #self.pybrain_rlAgent.giveReward(self.currentIntermediateReward)
-            self.pybrain_rlAgent.giveReward(reward)
+            self.pybrain_rlAgent.giveReward(game_state.intermediate_reward)
         else:
             self.hasHistory = True
         stateNumber = self.mapGameState(game_state)
-        print("State number: " + str(stateNumber))
+        #print("State number: " + str(stateNumber))
         self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
         legalActions = game_state.admissible_commands
         prunedActions = self.pruneAdmissibleCommands(legalActions)
@@ -139,7 +136,7 @@ class SimpleReinforcementAgent(textworld.Agent):
             done: Whether the game has finished normally or not.
                 If False, it means the agent's used up all of its actions.
         """
-        self.pybrain_rlAgent.giveReward(reward)
+        self.pybrain_rlAgent.giveReward(game_state.intermediate_reward)
         self.pybrain_rlAgent.learn()
         self.pybrain_rlAgent.reset()
         self.hasHistory = False

@@ -15,7 +15,7 @@ if __name__ == '__main__':
     
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
-    N = 20
+    N = 1000
     for no_episode in range(N):
         agent.reset(env)  # Tell the agent a new episode is starting.
         env.activate_state_tracking()
@@ -23,12 +23,12 @@ if __name__ == '__main__':
         game_state = env.reset()  # Start new episode.
         reward = 0
         done = False
-        agent.pybrain_rlAgent.newEpisode()
+        #agent.pybrain_rlAgent.newEpisode()
         
         
         for no_step in range(100):
             command = agent.act(game_state, reward, done)
-            print(command)
+            #print(command)
             game_state, reward, done = env.step(command)
             #print(str(game_state))
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     done = False
     agent.pybrain_rlAgent._setLearning(False)
     #print(str(agent.pybrain_rlAgent.module))
-    """
+    
     for no_step in range(100):
             print(str(game_state))
             command = agent.act(game_state, reward, done)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
             if done:
                 break
     
-    """
+    
     env.close()
 
 
