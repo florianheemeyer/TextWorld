@@ -5,7 +5,7 @@ Created on 08.12.2018
 '''
 
 import textworld
-import textworld.agents.Agents
+import Agents
 import argparse
 
 def parse_args():
@@ -18,7 +18,8 @@ if __name__ == '__main__':
 
     env = textworld.start(args.game)  # Start an existing game.
 #    agent = Agents.HumanAgent()
-    agent = textworld.agents.Agents.SimpleReinforcementAgent(1000, 12)
+    agent = Agents.SimpleReinforcementAgent(1000, 12)
+
     
     
     # Collect some statistics: nb_steps, final reward.

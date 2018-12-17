@@ -3,13 +3,14 @@ Created on 10.12.2018
 
 @author: andre
 '''
-import textworld
+from textworld import Agent
 import pybrain.rl.agents
 import pybrain.rl.learners.valuebased
 import pybrain.rl.learners
 import numpy as np
 
-class HumanAgent(textworld.Agent):
+
+class HumanAgent(Agent):
     '''
     classdocs
     '''
@@ -63,7 +64,7 @@ class HumanAgent(textworld.Agent):
         pass
     
     
-class SimpleReinforcementAgent(textworld.Agent):
+class SimpleReinforcementAgent(Agent):
     '''
     classdocs
     '''
@@ -155,10 +156,3 @@ class SimpleReinforcementAgent(textworld.Agent):
     def pruneAdmissibleCommands(self, admissibleCommands):
         prunedCommands = list(filter(lambda x: ("drop" not in x) and ("examine" not in x) and ("look" not in x) and ("inventory" not in x), admissibleCommands))
         return prunedCommands
-        
-        
-        
-        
-        
-        
-        
