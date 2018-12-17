@@ -5,12 +5,20 @@ Created on 08.12.2018
 '''
 
 import textworld
-import Agents
+import textworld.agents.Agents
+import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("game")
+    return parser.parse_args()
 
 if __name__ == '__main__':
-    env = textworld.start("/home/andre/TextWorld/gen_games/tw-game-PLs6U8U2-house-GP-OgOJFl9Jtba5I1Rb.ulx")  # Start an existing game.
+    args = parse_args()
+
+    env = textworld.start(args.game)  # Start an existing game.
 #    agent = Agents.HumanAgent()
-    agent = Agents.SimpleReinforcementAgent(1000, 12)
+    agent = textworld.agents.Agents.SimpleReinforcementAgent(1000, 12)
     
     
     # Collect some statistics: nb_steps, final reward.
