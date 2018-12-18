@@ -113,13 +113,14 @@ class SimpleReinforcementAgent(Agent):
         legalActions = game_state.admissible_commands
         prunedActions = self.pruneAdmissibleCommands(legalActions)
         action = 0
-                
-        actionNumber = self.pybrain_rlAgent.getAction()
-        if actionNumber < len(prunedActions):
-            action = prunedActions[int(actionNumber)]
-        else:
-            action = "NoActionChosen"
-        return action
+
+        while True:
+            actionNumber = self.pybrain_rlAgent.getAction()
+            if actionNumber < len(prunedActions):
+                return prunedActions[int(actionNumber)]
+            self.pybrain_rlAgent.giveReward(-1000)
+            self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
+
 
         """
         print("Reward: " + str(reward))
