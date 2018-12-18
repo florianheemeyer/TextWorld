@@ -74,7 +74,7 @@ class SimpleReinforcementAgent(Agent):
         Constructor
         '''
         controller = pybrain.rl.learners.valuebased.ActionValueTable(sizeOfStateSpace,maxNumberOfActions)
-        controller.initialize(0.0)
+        controller.initialize(0.5)
         learner = pybrain.rl.learners.Q(alpha, gamma)
         agent = pybrain.rl.agents.LearningAgent(controller, learner)
         self.pybrain_rlAgent = agent
