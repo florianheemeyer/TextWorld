@@ -19,7 +19,7 @@ def parse_args():
                         help="Maximum number of possible states")
     parser.add_argument("--action-space", type=int, default=12, metavar="ACTION_SPACE",
                         help="Maximum number of possible actions in a step")
-    parser.add_argument("--learning-rate", type=float, default=0.5, metavar="ALPHA",
+    parser.add_argument("--learning-rate", type=float, default=1, metavar="ALPHA",
                         help="Learning rate for new observations")
     parser.add_argument("--discount", type=float, default=0.99, metavar="GAMMA",
                         help="Discount factor for future rewards")
