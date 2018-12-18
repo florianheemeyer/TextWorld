@@ -38,6 +38,7 @@ if __name__ == '__main__':
     env.enable_extra_info("description")
     env.enable_extra_info("inventory")
     for no_episode in range(args.episodes):
+        print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
         env.activate_state_tracking()
         env.compute_intermediate_reward()
@@ -54,6 +55,8 @@ if __name__ == '__main__':
 
             if done:
                 break
+        print(str(no_step) + " steps taken")
+        print(str(len(agent.stateDictionary)) + " states explored in total")
 
         # See https://textworld-docs.maluuba.com/textworld.html#textworld.core.GameState
         avg_moves.append(game_state.nb_moves)
@@ -72,14 +75,18 @@ if __name__ == '__main__':
     done = False
     agent.pybrain_rlAgent._setLearning(False)
     #print(str(agent.pybrain_rlAgent.module))
+
+    params = agent.pybrain_rlAgent.module.params.reshape(agent.pybrain_rlAgent.module.numRows,
+                                                agent.pybrain_rlAgent.module.numColumns)
     
     for no_step in range(10):
             print(str(game_state))
             command = agent.act(game_state, reward, done)
-            print("Command: " + str(command))
+            #print("Intermediate reward: " + str(game_state.intermediate_reward))
             game_state, reward, done = env.step(command)
-            print(str(game_state))
+            print("Command: " + str(command) + " (reward: " + str(game_state.intermediate_reward) + ")")
             if done:
+                print(str(game_state))
                 break
     
     
