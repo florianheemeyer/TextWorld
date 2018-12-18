@@ -11,23 +11,29 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("game")
+    parser.add_argument("--episodes", type=int, default=20, metavar="EPISODES",
+                        help="Number of games played")
+    parser.add_argument("--steps", type=int, default=100, metavar="STEPS",
+                        help="Number of steps per game played")
+    parser.add_argument("--state-space", type=int, default=1000, metavar="STATE_SPACE",
+                        help="Maximum number of possible states")
+    parser.add_argument("--action-space", type=int, default=12, metavar="ACTION_SPACE",
+                        help="Maximum number of possible actions in a step")
+
     return parser.parse_args()
+
 
 if __name__ == '__main__':
     args = parse_args()
 
     env = textworld.start(args.game)  # Start an existing game.
-#    agent = Agents.HumanAgent()
-    agent = Agents.SimpleReinforcementAgent(1000, 12)
-
-    
+    agent = Agents.SimpleReinforcementAgent(args.state_space, args.action_space)
     
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
-    N = 20
     env.enable_extra_info("description")
     env.enable_extra_info("inventory")
-    for no_episode in range(N):
+    for no_episode in range(args.episodes):
         agent.reset(env)  # Tell the agent a new episode is starting.
         env.activate_state_tracking()
         env.compute_intermediate_reward()
@@ -36,7 +42,7 @@ if __name__ == '__main__':
         done = False
         
         
-        for no_step in range(100):
+        for no_step in range(args.steps):
             command = agent.act(game_state, reward, done)
             #print(command)
             game_state, reward, done = env.step(command)
@@ -50,7 +56,7 @@ if __name__ == '__main__':
         avg_scores.append(game_state.score)
         agent.finish(game_state, reward, done)
         
-    print("avg. steps: {:5.1f}; avg. score: {:4.1f} / 1.".format(sum(avg_moves)/N, sum(avg_scores)/N))
+    print("avg. steps: {:5.1f}; avg. score: {:4.1f} / 1.".format(sum(avg_moves)/args.episodes, sum(avg_scores)/args.episodes))
     
     #now we try to make it show what it learned
 
