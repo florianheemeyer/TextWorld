@@ -19,6 +19,10 @@ def parse_args():
                         help="Maximum number of possible states")
     parser.add_argument("--action-space", type=int, default=12, metavar="ACTION_SPACE",
                         help="Maximum number of possible actions in a step")
+    parser.add_argument("--learning-rate", type=float, default=0.5, metavar="ALPHA",
+                        help="Learning rate for new observations")
+    parser.add_argument("--discount", type=float, default=0.99, metavar="GAMMA",
+                        help="Discount factor for future rewards")
 
     return parser.parse_args()
 
@@ -27,7 +31,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     env = textworld.start(args.game)  # Start an existing game.
-    agent = Agents.SimpleReinforcementAgent(args.state_space, args.action_space)
+    agent = Agents.SimpleReinforcementAgent(args.state_space, args.action_space, args.learning_rate, args.discount)
     
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []

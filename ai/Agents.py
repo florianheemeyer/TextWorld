@@ -69,13 +69,13 @@ class SimpleReinforcementAgent(Agent):
     classdocs
     '''
 
-    def __init__(self, sizeOfStateSpace, maxNumberOfActions):
+    def __init__(self, sizeOfStateSpace, maxNumberOfActions, alpha, gamma):
         '''
         Constructor
         '''
         controller = pybrain.rl.learners.valuebased.ActionValueTable(sizeOfStateSpace,maxNumberOfActions)
         controller.initialize(0.0)
-        learner = pybrain.rl.learners.Q()
+        learner = pybrain.rl.learners.Q(alpha, gamma)
         agent = pybrain.rl.agents.LearningAgent(controller, learner)
         self.pybrain_rlAgent = agent
         self.stateDictionary = {}
