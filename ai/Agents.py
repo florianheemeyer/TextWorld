@@ -109,6 +109,7 @@ class SimpleReinforcementAgent(Agent):
         self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
         legalActions = game_state.admissible_commands
         prunedActions = self.pruneAdmissibleCommands(legalActions)
+        assert len(prunedActions) < self.pybrain_rlAgent.module.numColumns
         action = 0
 
         while True:
