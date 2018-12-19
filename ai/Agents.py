@@ -1,7 +1,7 @@
 '''
 Created on 10.12.2018
 
-@author: test
+@author: Peter_Enis
 '''
 from textworld import Agent
 import pybrain.rl.agents
