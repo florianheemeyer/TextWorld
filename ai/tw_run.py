@@ -17,7 +17,7 @@ def parse_args():
                         help="Number of steps per game played")
     parser.add_argument("--state-space", type=int, default=1000, metavar="STATE_SPACE",
                         help="Maximum number of possible states")
-    parser.add_argument("--action-space", type=int, default=12, metavar="ACTION_SPACE",
+    parser.add_argument("--action-space", type=int, default=20, metavar="ACTION_SPACE",
                         help="Maximum number of possible actions in a step")
     parser.add_argument("--learning-rate", type=float, default=1, metavar="ALPHA",
                         help="Learning rate for new observations")
