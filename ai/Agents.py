@@ -144,7 +144,8 @@ class SimpleReinforcementAgent(Agent):
         self.hasHistory = False
     
     def mapGameState(self, game_state):
-        representation = game_state.description + game_state.inventory
+        sortedInventory = str(sorted([item for item in game_state.inventory.split("\n") if item != ""]))
+            representation = game_state.description + sortedInventory
         if representation in self.stateDictionary:
             return self.stateDictionary[representation]
         else:
