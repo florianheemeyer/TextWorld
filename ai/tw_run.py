@@ -23,6 +23,10 @@ def parse_args():
                         help="Learning rate for new observations")
     parser.add_argument("--discount", type=float, default=0.99, metavar="GAMMA",
                         help="Discount factor for future rewards")
+    parser.add_argument("--save", type=str, default="", metavar="SAVE",
+                        help="Save learned action value table to file of given name after training")
+    parser.add_argument("--load", type=str, default="", metavar="LOAD",
+                        help="Load action value table from file of given name before training")
 
     return parser.parse_args()
 
@@ -32,7 +36,10 @@ if __name__ == '__main__':
 
     env = textworld.start(args.game)  # Start an existing game.
     agent = Agents.SimpleReinforcementAgent(args.state_space, args.action_space, args.learning_rate, args.discount)
-    
+
+    if args.load != "":
+        agent.loadState(args.load)
+
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
     env.enable_extra_info("description")
@@ -78,6 +85,9 @@ if __name__ == '__main__':
 
     params = agent.pybrain_rlAgent.module.params.reshape(agent.pybrain_rlAgent.module.numRows,
                                                 agent.pybrain_rlAgent.module.numColumns)
+
+    if (args.save != ""):
+        agent.saveState(args.save)
     
     for no_step in range(10):
             print(str(game_state))

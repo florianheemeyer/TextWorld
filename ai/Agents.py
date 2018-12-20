@@ -8,6 +8,7 @@ import pybrain.rl.agents
 import pybrain.rl.learners.valuebased
 import pybrain.rl.learners
 import numpy as np
+import pickle
 
 
 class HumanAgent(Agent):
@@ -171,3 +172,12 @@ class SimpleReinforcementAgent(Agent):
             else:
                 value = -1000
             self.pybrain_rlAgent.module.updateValue(stateNumber, actionNumber, value)
+
+    def saveState(self, filename):
+        pickle.dump(self.pybrain_rlAgent.module.params, open( filename + "_t.p", "wb" ) )
+        pickle.dump(self.stateDictionary, open( filename + "_d.p", "wb" ) )
+
+    def loadState(self, filename):
+        self.pybrain_rlAgent.module._params = pickle.load( open( filename + "_t.p", "rb" ) )
+        self.stateDictionary = pickle.load( open( filename + "_d.p", "rb" ) )
+
