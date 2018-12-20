@@ -145,7 +145,7 @@ class SimpleReinforcementAgent(Agent):
     
     def mapGameState(self, game_state):
         sortedInventory = str(sorted([item for item in game_state.inventory.split("\n") if item != ""]))
-            representation = game_state.description + sortedInventory
+        representation = game_state.description + sortedInventory
         if representation in self.stateDictionary:
             return self.stateDictionary[representation]
         else:
