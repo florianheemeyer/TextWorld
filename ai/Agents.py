@@ -105,12 +105,12 @@ class SimpleReinforcementAgent(Agent):
             self.pybrain_rlAgent.giveReward(game_state.intermediate_reward)
         else:
             self.hasHistory = True
-        stateNumber = self.mapGameState(game_state)
-        self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
+
         legalActions = game_state.admissible_commands
         prunedActions = self.pruneAdmissibleCommands(legalActions)
         assert len(prunedActions) < self.pybrain_rlAgent.module.numColumns
-        action = 0
+        stateNumber = self.mapGameState(game_state,prunedActions)
+        self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
 
         while True:
             actionNumber = self.pybrain_rlAgent.getAction()
@@ -143,7 +143,7 @@ class SimpleReinforcementAgent(Agent):
         self.pybrain_rlAgent.reset()
         self.hasHistory = False
     
-    def mapGameState(self, game_state):
+    def mapGameState(self, game_state, prunedActions):
         sortedInventory = str(sorted([item for item in game_state.inventory.split("\n") if item != ""]))
         representation = game_state.description + sortedInventory
         if representation in self.stateDictionary:
@@ -151,8 +151,13 @@ class SimpleReinforcementAgent(Agent):
         else:
             value = len(self.stateDictionary)
             self.stateDictionary[representation] = value
+            self.initGameStateValues(value,prunedActions)
             return value
         
     def pruneAdmissibleCommands(self, admissibleCommands):
         prunedCommands = list(filter(lambda x: ("drop" not in x) and ("examine" not in x) and ("look" not in x) and ("inventory" not in x), admissibleCommands))
         return prunedCommands
+
+    def initGameStateValues(self,stateNumber,prunedActions):
+        for actionNumber in range(self.pybrain_rlAgent.module.numColumns):
+            self.pybrain_rlAgent.module.updateValue(stateNumber, actionNumber, 0.5)
