@@ -159,5 +159,15 @@ class SimpleReinforcementAgent(Agent):
         return prunedCommands
 
     def initGameStateValues(self,stateNumber,prunedActions):
+        preferredVerbs = ["take", "open", "unlock"]
+
         for actionNumber in range(self.pybrain_rlAgent.module.numColumns):
-            self.pybrain_rlAgent.module.updateValue(stateNumber, actionNumber, 0.5)
+            if actionNumber < len(prunedActions):
+                verb = prunedActions[actionNumber].split()[0]
+                if verb in preferredVerbs:
+                    value = 0.7
+                else:
+                    value = 0.5
+            else:
+                value = -1000
+            self.pybrain_rlAgent.module.updateValue(stateNumber, actionNumber, value)
