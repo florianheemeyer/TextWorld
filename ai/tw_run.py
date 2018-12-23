@@ -35,15 +35,15 @@ if __name__ == '__main__':
     args = parse_args()
 
     env = textworld.start(args.game)  # Start an existing game.
-    agent = Agents.SimpleReinforcementAgent(args.state_space, args.action_space, args.learning_rate, args.discount)
+    agent = Agents.ReinforcementAgent2(args.state_space, args.action_space, args.learning_rate, args.discount) #Change AT
 
     if args.load != "":
         agent.loadState(args.load)
 
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
-    env.enable_extra_info("description")
-    env.enable_extra_info("inventory")
+    #env.enable_extra_info("description") #change AT
+    #env.enable_extra_info("inventory")   #change AT
     for no_episode in range(args.episodes):
         print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
