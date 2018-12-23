@@ -42,13 +42,13 @@ if __name__ == '__main__':
 
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
-    #env.enable_extra_info("description") #change AT
-    #env.enable_extra_info("inventory")   #change AT
+    env.enable_extra_info("description") #change AT
+    env.enable_extra_info("inventory")   #change AT
     for no_episode in range(args.episodes):
         print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
         env.activate_state_tracking()
-        env.compute_intermediate_reward()
+        #env.compute_intermediate_reward()
         game_state = env.reset()  # Start new episode.
         reward = 0
         done = False
@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     agent.reset(env)  # Tell the agent a new episode is starting.
     env.activate_state_tracking()
-    env.compute_intermediate_reward()
+    #env.compute_intermediate_reward()
     game_state = env.reset()  # Start new episode.
     reward = 0
     done = False
@@ -94,7 +94,8 @@ if __name__ == '__main__':
             command = agent.act(game_state, reward, done)
             #print("Intermediate reward: " + str(game_state.intermediate_reward))
             game_state, reward, done = env.step(command)
-            print("Command: " + str(command) + " (reward: " + str(game_state.intermediate_reward) + ")")
+            #print("Command: " + str(command) + " (reward: " + str(game_state.intermediate_reward) + ")")
+            print("Command: " + str(command) + " (reward: " + str(agent.calculateReward(reward)) + ")")
             if done:
                 print(str(game_state))
                 break

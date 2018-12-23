@@ -203,7 +203,7 @@ class ReinforcementAgent2(Agent):
         learner = pybrain.rl.learners.Q(alpha, gamma)
         agent = pybrain.rl.agents.LearningAgent(controller, learner)
         self.pybrain_rlAgent = agent
-        self.stateDictionary = {}
+        self.stateDictionary = {"done": 1}
         self.hasHistory = False
         self.lastAction = ""
         
@@ -229,29 +229,10 @@ class ReinforcementAgent2(Agent):
         """
         
         if "put" in self.lastAction or "drop" in self.lastAction or "insert" in self.lastAction:
-            commandToUndo = self.lastAction.split()
-            self.lastAction = ""
-            
-            #now undo last command
-            if commandToUndo[0].lower() == "drop":
-                cleanUpCommand = "take"
-                for i in range(1, len(commandToUndo)):
-                    cleanUpCommand += " " + commandToUndo[i]
-                return cleanUpCommand
-            elif commandToUndo[0].lower() == "put" or commandToUndo[0].lower() == "insert":
-                cleanUpCommand = "take"
-                for i in range(1, len(commandToUndo)):
-                    if commandToUndo[i].lower() == "in" or commandToUndo[i].lower() == "into" or commandToUndo[i].lower() == "on" or commandToUndo[i].lower() == "to":
-                        cleanUpCommand += " " + "from"
-                    else:
-                        cleanUpCommand += " " + commandToUndo[i]
-                return cleanUpCommand
-            assert False
-
-        
+            self.undoPutInsertDrop()
         
         if self.hasHistory:
-            self.pybrain_rlAgent.giveReward(game_state.intermediate_reward)
+            self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
         else:
             self.hasHistory = True
 
@@ -288,11 +269,23 @@ class ReinforcementAgent2(Agent):
             done: Whether the game has finished normally or not.
                 If False, it means the agent's used up all of its actions.
         """
-        self.pybrain_rlAgent.giveReward(game_state.intermediate_reward)
+        print("Environment-reward: " + str(reward))
+        print("Calculated Reward: " + str(self.calculateReward(reward)))
+        print("Max q-Value before: " + str(self.pybrain_rlAgent.module.params.max()))
+        self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
+        # Workaround because agent for some reason does not save the last reward in an episode...
+        if done:
+            self.pybrain_rlAgent.integrateObservation(np.array([1]))
+            self.pybrain_rlAgent.getAction()
+            self.pybrain_rlAgent.giveReward(9999)
+        # End of workaround
         self.pybrain_rlAgent.learn()
         self.pybrain_rlAgent.reset()
         self.hasHistory = False
         self.lastAction = ""
+        assert self.pybrain_rlAgent.module.params.max() <= 9999
+        print("Max q-Value after: " + str(self.pybrain_rlAgent.module.params.max()))
+
 
     
     def mapGameState(self, game_state, prunedActions):
@@ -315,7 +308,7 @@ class ReinforcementAgent2(Agent):
         return prunedCommands
 
     def initGameStateValues(self,stateNumber,prunedActions):
-        preferredVerbs = ["take", "open", "unlock"]
+        preferredVerbs = ["take", "open", "unlock", "put"]
 
         for actionNumber in range(self.pybrain_rlAgent.module.numColumns):
             if actionNumber < len(prunedActions):
@@ -336,4 +329,36 @@ class ReinforcementAgent2(Agent):
         self.pybrain_rlAgent.module._params = pickle.load( open( filename + "_t.p", "rb" ) )
         self.stateDictionary = pickle.load( open( filename + "_d.p", "rb" ) )
 
+    def calculateReward(self, reward):
+        lastActionList = self.lastAction.split()
+        if not (reward == 0.0):
+            return reward * 1000.0
+        elif self.lastAction == "undo":
+            return -500.0
+        elif "eat" in lastActionList:
+            return -500.0
+        elif "take" in lastActionList:
+            return +0.5
+        else:
+            return 0.0
+        
+    def undoPutInsertDrop(self):
+        commandToUndo = self.lastAction.split()
+        self.lastAction = "undo"
+            
+        #now undo last command
+        if commandToUndo[0].lower() == "drop":
+            cleanUpCommand = "take"
+            for i in range(1, len(commandToUndo)):
+                cleanUpCommand += " " + commandToUndo[i]
+            return cleanUpCommand
+        elif commandToUndo[0].lower() == "put" or commandToUndo[0].lower() == "insert":
+            cleanUpCommand = "take"
+            for i in range(1, len(commandToUndo)):
+                if commandToUndo[i].lower() == "in" or commandToUndo[i].lower() == "into" or commandToUndo[i].lower() == "on" or commandToUndo[i].lower() == "to":
+                    cleanUpCommand += " " + "from"
+                else:
+                    cleanUpCommand += " " + commandToUndo[i]
+            return cleanUpCommand
+        assert False
 
