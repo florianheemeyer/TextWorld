@@ -9,6 +9,7 @@ import pybrain.rl.learners.valuebased
 import pybrain.rl.learners
 import numpy as np
 import pickle
+import NaturalLanguageProcessing
 
 
 class HumanAgent(Agent):
@@ -194,7 +195,7 @@ class ReinforcementAgent2(Agent):
     classdocs
     '''
 
-    def __init__(self, sizeOfStateSpace, maxNumberOfActions, alpha, gamma):
+    def __init__(self, sizeOfStateSpace, maxNumberOfActions, alpha, gamma, use_admissable_commands):
         '''
         Constructor
         '''
@@ -206,6 +207,7 @@ class ReinforcementAgent2(Agent):
         self.stateDictionary = {"done": 1}
         self.hasHistory = False
         self.lastAction = ""
+        self.use_admissable_commands = use_admissable_commands
         
 
     def reset(self, env) -> None:
@@ -235,9 +237,15 @@ class ReinforcementAgent2(Agent):
             self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
         else:
             self.hasHistory = True
-
-        legalActions = game_state.admissible_commands
-        prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
+        
+        if self.use_admissable_commands:
+            legalActions = game_state.admissible_commands
+            prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
+        else:
+            prunedActions = NaturalLanguageProcessing.getCommands(game_state.description, self.sortInventory(game_state.inventory))
+            legalActions = game_state.admissible_commands
+            prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
+        
         assert len(prunedActions) < self.pybrain_rlAgent.module.numColumns
         stateNumber = self.mapGameState(game_state,prunedActions)
         self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
@@ -283,13 +291,12 @@ class ReinforcementAgent2(Agent):
         self.pybrain_rlAgent.reset()
         self.hasHistory = False
         self.lastAction = ""
-        assert self.pybrain_rlAgent.module.params.max() <= 9999
         print("Max q-Value after: " + str(self.pybrain_rlAgent.module.params.max()))
 
 
     
     def mapGameState(self, game_state, prunedActions):
-        sortedInventory = str(sorted([item for item in game_state.inventory.split("\n") if item != ""]))
+        sortedInventory = self.sortInventory(game_state.inventory)
         representation = game_state.description + sortedInventory
         if representation in self.stateDictionary:
             return self.stateDictionary[representation]
@@ -298,6 +305,9 @@ class ReinforcementAgent2(Agent):
             self.stateDictionary[representation] = value
             self.initGameStateValues(value,prunedActions)
             return value
+        
+    def sortInventory(self, inventory):
+        return str(sorted([item for item in inventory.split("\n") if item != ""]))
         
     def pruneAdmissibleCommands(self, admissibleCommands):
         prunedCommands = list(filter(lambda x: ("drop" not in x) and ("examine" not in x) and ("look" not in x) and ("inventory" not in x), admissibleCommands))
@@ -314,7 +324,7 @@ class ReinforcementAgent2(Agent):
             if actionNumber < len(prunedActions):
                 verb = prunedActions[actionNumber].split()[0]
                 if verb in preferredVerbs:
-                    value = 0.7
+                    value = 0.5
                 else:
                     value = 0.5
             else:

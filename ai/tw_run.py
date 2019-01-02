@@ -19,7 +19,7 @@ def parse_args():
                         help="Maximum number of possible states")
     parser.add_argument("--action-space", type=int, default=20, metavar="ACTION_SPACE",
                         help="Maximum number of possible actions in a step")
-    parser.add_argument("--learning-rate", type=float, default=1, metavar="ALPHA",
+    parser.add_argument("--learning-rate", type=float, default=1.0, metavar="ALPHA",
                         help="Learning rate for new observations")
     parser.add_argument("--discount", type=float, default=0.99, metavar="GAMMA",
                         help="Discount factor for future rewards")
@@ -27,6 +27,8 @@ def parse_args():
                         help="Save learned action value table to file of given name after training")
     parser.add_argument("--load", type=str, default="", metavar="LOAD",
                         help="Load action value table from file of given name before training")
+    parser.add_argument("--use-admissable-commands", action="store_true",
+                        help="Use admissable commands from textworld")
 
     return parser.parse_args()
 
@@ -35,15 +37,15 @@ if __name__ == '__main__':
     args = parse_args()
 
     env = textworld.start(args.game)  # Start an existing game.
-    agent = Agents.ReinforcementAgent2(args.state_space, args.action_space, args.learning_rate, args.discount) #Change AT
+    agent = Agents.ReinforcementAgent2(args.state_space, args.action_space, args.learning_rate, args.discount, False) #Change AT
 
     if args.load != "":
         agent.loadState(args.load)
 
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
-    env.enable_extra_info("description") #change AT
-    env.enable_extra_info("inventory")   #change AT
+    #env.enable_extra_info("description") #change AT
+    #env.enable_extra_info("inventory")   #change AT
     for no_episode in range(args.episodes):
         print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
