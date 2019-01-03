@@ -109,7 +109,7 @@ class WordAttributeInference():
                " Takeable: " + str(self.takeable) + " Lockable: " + str(self.lockable) + " Openable: " + str(self.openable)
 
     def isContainer(self):
-        return self.soundsLikeContainer() or self.soundsLikeFurniture()
+        return self.soundsLikeContainer() or self.soundsLikeFurniture() or self.soundsLikeKitchenUtensil()
 
     def isKey(self):
         return self.soundsLikeKey()
@@ -142,6 +142,8 @@ class WordAttributeInference():
     def soundsLikeFurniture(self):
         return wn.synset("furniture.n.01") in self.hypernyms
 
+    def     soundsLikeKitchenUtensil(self):
+        return wn.synset("kitchen_utensil.n.01") in self.hypernyms
 
 if __name__ == '__main__':
     
