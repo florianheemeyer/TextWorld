@@ -44,8 +44,8 @@ if __name__ == '__main__':
 
     # Collect some statistics: nb_steps, final reward.
     avg_moves, avg_scores = [], []
-    #env.enable_extra_info("description") #change AT
-    #env.enable_extra_info("inventory")   #change AT
+    env.enable_extra_info("description") #change AT
+    env.enable_extra_info("inventory")   #change AT
     for no_episode in range(args.episodes):
         print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
