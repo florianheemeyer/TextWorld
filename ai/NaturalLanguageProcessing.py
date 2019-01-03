@@ -7,6 +7,8 @@ import spacy
 from spacy import displacy
 from nltk.corpus import wordnet as wn
 
+debug = False
+
 def getCommands(description, inventory):
     """ Requires current description of the game (String) and inventory (String).
     Returns: list of strings with commands for current gamestate."""
@@ -16,15 +18,75 @@ def getCommands(description, inventory):
     inv = [removePreposition(x).strip() for x in inventory.split("\n")]
     
     takeCommands, containersWithPrep, thingstakenCareOf = identifyInOnRelationships(desc)
-    
-    chunks = desc.noun_chunks
-    print(description)
-    for chunk in desc.noun_chunks:
-        if isRelevantChunk(chunk):
-            print(chunk.text, chunk.root.text, chunk.root.dep_,
-                chunk.root.head.text, chunk.root.pos_, chunk.root.tag_)
-            print(WordAttributeInference.factory(chunk.root.text))
-    
+
+    if debug:
+        print(description)
+        print(inventory)
+
+    #for chunk in desc.noun_chunks:
+    #    if isRelevantChunk(chunk):
+    #        relevantNouns.add(chunk.root.text)
+    #       if debug:
+    #            print(chunk.text, chunk.root.text, chunk.root.dep_,
+    #                chunk.root.head.text, chunk.root.pos_, chunk.root.tag_)
+    #            print(WordAttributeInference.factory(chunk.root.text))
+
+    relevantNouns = set()
+    for word in desc:
+        if word.pos_ == "NOUN":
+            relevantNouns.add(word.text)
+
+    containers = set()
+    keys = set()
+    takeables = set()
+    lockables = set()
+    openables = set()
+    for noun in relevantNouns:
+        attributes = WordAttributeInference.factory(noun)
+        if attributes.container:
+            containers.add(noun)
+        if attributes.takeable:
+            takeables.add(noun)
+        if attributes.lockable:
+            lockables.add(noun)
+        if attributes.openable:
+            openables.add(noun)
+
+    for item in inv:
+        if WordAttributeInference.factory(item).key:
+            keys.add(item)
+
+    commands = []
+
+    for item in inv:
+        commands.append("drop " + item)
+
+    commands += takeCommands
+
+    for openable in openables:
+        commands.append("open " + openable)
+        commands.append("close " + openable)
+
+    for lockable in lockables:
+        for key in keys:
+            commands.append("lock " + lockable + " with " + key)
+            commands.append("unlock " + lockable + " with " + key)
+
+    for container in containers:
+        for item in inv:
+            commands.append("insert " + item + " into " + container)
+            commands.append("put " + item + " on " + container)
+
+    for takeable in takeables:
+        commands.append("take " + takeable)
+
+    commands += ["go east", "go west", "go south", "go north"]
+
+    if debug:
+        print(str(len(commands)) + " commands generated")
+        print(commands)
+    return commands
+
 def isRelevantChunk(chunk):
     if chunk.root.pos_ == "PRON" or chunk.root.tag_ == "WP":
         
@@ -60,11 +122,19 @@ def identifyInOnRelationships(desc):
                 if takeCommandGenerated:
                     containersOrPlacesWithPreposition.append(token.text + " " + child.text)
                     objectsTakenCareOf.append(child.text)
-    print(takeFromCommands)
-    print(containersOrPlacesWithPreposition)
-    print(objectsTakenCareOf)
-    return takeFromCommands, containersOrPlacesWithPreposition, objectsTakenCareOf                 
-    
+        elif str.lower(token.text) == "contains":
+            children = token.children
+            child1 = next(children)
+            child2 = next(children)
+            takeFromCommands.append("take " + child1.text + " from " + child2.text)
+            takeFromCommands.append("take " + child2.text + " from " + child1.text)
+
+    if debug:
+        print(takeFromCommands)
+        print(containersOrPlacesWithPreposition)
+        print(objectsTakenCareOf)
+    return takeFromCommands, containersOrPlacesWithPreposition, objectsTakenCareOf
+
 
 def removePreposition(text):
     return removePrefix(removePrefix(removePrefix(text.strip(), "the "), "a "), "an ")
@@ -140,7 +210,7 @@ class WordAttributeInference():
         return wn.synset("container.n.01") in self.hypernyms
 
     def soundsLikeFurniture(self):
-        return wn.synset("furniture.n.01") in self.hypernyms
+        return wn.synset("furniture.n.01") in self.hypernyms or wn.synset("shelf.n.01") in self.hypernyms
 
     def     soundsLikeKitchenUtensil(self):
         return wn.synset("kitchen_utensil.n.01") in self.hypernyms

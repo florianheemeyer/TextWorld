@@ -50,7 +50,7 @@ if __name__ == '__main__':
         print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
         env.activate_state_tracking()
-        #env.compute_intermediate_reward()
+        env.compute_intermediate_reward()
         game_state = env.reset()  # Start new episode.
         reward = 0
         done = False

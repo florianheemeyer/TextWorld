@@ -228,7 +228,7 @@ class ReinforcementAgent2(Agent):
         """
         
         if "put" in self.lastAction or "drop" in self.lastAction or "insert" in self.lastAction:
-            self.undoPutInsertDrop()
+            return self.undoPutInsertDrop()
         
         if self.hasHistory:
             self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
@@ -411,7 +411,7 @@ class ReinforcementAgent3(Agent):
         """
         
         if "put" in self.lastAction or "drop" in self.lastAction or "insert" in self.lastAction:
-            self.undoPutInsertDrop()
+            return self.undoPutInsertDrop()
         
         if self.hasHistory:
             self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
@@ -425,9 +425,10 @@ class ReinforcementAgent3(Agent):
         if self.use_admissable_commands:
             legalActions = game_state.admissible_commands
             prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
-        else:   #toDoAndRemoveOnceWeGenerateOurOwnActions
-            legalActions = game_state.admissible_commands
-            prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
+
+        if not game_state.policy_commands[0] in prunedActions:
+            print("Policy command not in generated actions: " + game_state.policy_commands[0])
+            print(game_state.description)
         
         assert len(prunedActions) < self.pybrain_rlAgent.module.numColumns
         self.pybrain_rlAgent.integrateObservation(np.array([stateNumber]))
@@ -486,13 +487,12 @@ class ReinforcementAgent3(Agent):
             value = len(self.stateDictionary)
             prunedActions = NaturalLanguageProcessing.getCommands(game_state.description, sortedInventory)
             self.stateDictionary[representation] = [value, prunedActions]
-            prunedActions = game_state.admissible_commands #ToDo
             self.initGameStateValues(value,prunedActions)
             return [value, prunedActions]
         
     def sortInventory(self, inventory):
-        return str(sorted([item for item in inventory.split("\n") if item != ""]))
-        
+        return "\n".join(sorted([item for item in inventory.split("\n") if item != "" and item != "You are carrying:" and item != "You are carrying nothing."]))
+
     def pruneAdmissibleCommands(self, admissibleCommands):
         prunedCommands = list(filter(lambda x: ("drop" not in x) and ("examine" not in x) and ("look" not in x) and ("inventory" not in x), admissibleCommands))
         return prunedCommands
