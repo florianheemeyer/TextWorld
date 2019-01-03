@@ -37,7 +37,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     env = textworld.start(args.game)  # Start an existing game.
-    agent = Agents.ReinforcementAgent2(args.state_space, args.action_space, args.learning_rate, args.discount, False) #Change AT
+    agent = Agents.ReinforcementAgent3(args.state_space, args.action_space, args.learning_rate, args.discount, False) #Change AT
 
     if args.load != "":
         agent.loadState(args.load)
