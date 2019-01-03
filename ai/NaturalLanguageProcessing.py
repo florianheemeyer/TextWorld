@@ -21,6 +21,7 @@ def getCommands(description, inventory):
         if isRelevantChunk(chunk):
             print(chunk.text, chunk.root.text, chunk.root.dep_,
                 chunk.root.head.text, chunk.root.pos_, chunk.root.tag_)
+            print(WordAttributeInference.factory(chunk.root.text))
     
 def isRelevantChunk(chunk):
     if chunk.root.pos_ == "PRON" or chunk.root.tag_ == "WP":
@@ -66,6 +67,10 @@ class WordAttributeInference():
         self.takeable = self.isTakeable()
         self.lockable = self.isLockable()
         self.openable = self.isOpenable()
+
+    def __str__(self):
+        return self.word + " Container: " + str(self.container) + " Key: " + str(self.key) + \
+               " Takeable: " + str(self.takeable) + " Lockable: " + str(self.lockable) + " Openable: " + str(self.openable)
 
     def isContainer(self):
         return self.soundsLikeContainer() or self.soundsLikeFurniture()
