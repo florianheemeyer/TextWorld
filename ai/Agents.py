@@ -307,7 +307,7 @@ class ReinforcementAgent2(Agent):
             return value
         
     def sortInventory(self, inventory):
-        return str(sorted([item for item in inventory.split("\n") if item != ""]))
+        return "\n".join(sorted([item for item in inventory.split("\n") if item != "" and item != "You are carrying:"]))
         
     def pruneAdmissibleCommands(self, admissibleCommands):
         prunedCommands = list(filter(lambda x: ("drop" not in x) and ("examine" not in x) and ("look" not in x) and ("inventory" not in x), admissibleCommands))

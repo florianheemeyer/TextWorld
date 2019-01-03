@@ -13,7 +13,7 @@ def getCommands(description, inventory):
     
     nlp = spacy.load('en_core_web_sm')
     desc = nlp(description)
-    inv = nlp(inventory)
+    inv = [removePreposition(x).strip() for x in inventory.split("\n")]
     
     chunks = desc.noun_chunks
     print(description)
@@ -29,6 +29,13 @@ def isRelevantChunk(chunk):
     
     return True
 
+def removePreposition(text):
+    return removePrefix(removePrefix(removePrefix(text.strip(), "the "), "a "), "an ")
+
+def removePrefix(string, prefix):
+    if string.startswith(prefix):
+        return string[len(prefix):]
+    return string
 
 class WordAttributeInference():
     cache = {}
