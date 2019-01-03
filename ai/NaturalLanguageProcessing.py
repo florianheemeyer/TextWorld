@@ -5,6 +5,7 @@ Created on 02.01.2019
 '''
 import spacy
 from spacy import displacy
+from nltk.corpus import wordnet as wn
 
 def getCommands(description, inventory):
     """ Requires current description of the game (String) and inventory (String).
@@ -27,7 +28,71 @@ def isRelevantChunk(chunk):
         return False
     
     return True
-    
+
+
+class WordAttributeInference():
+    cache = {}
+
+    def factory(word):
+        if word in WordAttributeInference.cache:
+            return WordAttributeInference.cache[word]
+        else:
+            object = WordAttributeInference(word)
+            WordAttributeInference.cache[word] = object
+            return object
+
+    def __init__(self, word):
+        self.word = word
+        self.hypernyms = set()
+
+        synsets = wn.synsets(word)
+        self.hypernyms.update(synsets)
+
+        for synset in synsets:
+            hypernym_paths = synset.hypernym_paths()
+            for hypernym_path in hypernym_paths:
+                self.hypernyms.update(hypernym_path)
+
+        #cache attributes
+        self.container = self.isContainer()
+        self.key = self.isKey()
+        self.takeable = self.isTakeable()
+        self.lockable = self.isLockable()
+        self.openable = self.isOpenable()
+
+    def isContainer(self):
+        return self.soundsLikeContainer() or self.soundsLikeFurniture()
+
+    def isKey(self):
+        return self.soundsLikeKey()
+
+    def isTakeable(self):
+        if not (self.soundsLikeContainer() or self.soundsLikeRoom() or self.soundsLikeDoor()):
+            return True
+        if self.soundsLikeKey():
+            return True
+        return False
+
+    def isLockable(self):
+        return self.soundsLikeContainer() or self.soundsLikeDoor()
+
+    def isOpenable(self):
+        return self.soundsLikeContainer() or self.soundsLikeDoor() or self.soundsLikeFurniture()
+
+    def soundsLikeKey(self):
+        return "key" in self.word or wn.synset("key.n.01") in self.hypernyms
+
+    def soundsLikeRoom(self):
+        return "room" in self.word or wn.synset("room.n.01") in self.hypernyms
+
+    def soundsLikeDoor(self):
+        return "door" in self.word or wn.synset("barrier.n.01") in self.hypernyms or wn.synset("entrance.n.01") in self.hypernyms
+
+    def soundsLikeContainer(self):
+        return wn.synset("container.n.01") in self.hypernyms
+
+    def soundsLikeFurniture(self):
+        return wn.synset("furniture.n.01") in self.hypernyms
 
 if __name__ == '__main__':
     
