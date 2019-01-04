@@ -97,7 +97,7 @@ if __name__ == '__main__':
             #print("Intermediate reward: " + str(game_state.intermediate_reward))
             game_state, reward, done = env.step(command)
             #print("Command: " + str(command) + " (reward: " + str(game_state.intermediate_reward) + ")")
-            print("Command: " + str(command) + " (reward: " + str(agent.calculateReward(reward)) + ")")
+            print("Command: " + str(command) + " (reward: " + str(agent.calculateReward(reward, True)) + ")")
             if done:
                 print(str(game_state))
                 break

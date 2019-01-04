@@ -388,7 +388,7 @@ class ReinforcementAgent3(Agent):
         self.hasHistory = False
         self.lastAction = ""
         self.use_admissable_commands = use_admissable_commands
-        
+        self.previousStateNumber = None
 
     def reset(self, env) -> None:
         """ Let the agent set some environment's flags.
@@ -412,15 +412,18 @@ class ReinforcementAgent3(Agent):
         
         if "put" in self.lastAction or "drop" in self.lastAction or "insert" in self.lastAction:
             return self.undoPutInsertDrop()
-        
-        if self.hasHistory:
-            self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
-        else:
-            self.hasHistory = True
+
         
         mappedState = self.mapGameState(game_state)
         stateNumber = mappedState[0]
         prunedActions = mappedState[1]
+
+        if self.hasHistory:
+            self.pybrain_rlAgent.giveReward(self.calculateReward(reward, stateNumber != self.previousStateNumber))
+        else:
+            self.hasHistory = True
+
+        self.previousStateNumber = stateNumber
 
         if self.use_admissable_commands:
             legalActions = game_state.admissible_commands
@@ -460,10 +463,11 @@ class ReinforcementAgent3(Agent):
             done: Whether the game has finished normally or not.
                 If False, it means the agent's used up all of its actions.
         """
+        calculatedReward = self.calculateReward(reward, self.mapGameState(game_state)[0] != self.previousStateNumber)
         print("Environment-reward: " + str(reward))
-        print("Calculated Reward: " + str(self.calculateReward(reward)))
+        print("Calculated Reward: " + str(calculatedReward))
         print("Max q-Value before: " + str(self.pybrain_rlAgent.module.params.max()))
-        self.pybrain_rlAgent.giveReward(self.calculateReward(reward))
+        self.pybrain_rlAgent.giveReward(calculatedReward)
         # Workaround because agent for some reason does not save the last reward in an episode...
         if done:
             self.pybrain_rlAgent.integrateObservation(np.array([1]))
@@ -473,6 +477,7 @@ class ReinforcementAgent3(Agent):
         self.pybrain_rlAgent.learn()
         self.pybrain_rlAgent.reset()
         self.hasHistory = False
+        self.previousStateNumber = None
         self.lastAction = ""
         print("Max q-Value after: " + str(self.pybrain_rlAgent.module.params.max()))
 
@@ -523,12 +528,14 @@ class ReinforcementAgent3(Agent):
         self.pybrain_rlAgent.module._params = pickle.load( open( filename + "_t.p", "rb" ) )
         self.stateDictionary = pickle.load( open( filename + "_d.p", "rb" ) )
 
-    def calculateReward(self, reward):
+    def calculateReward(self, reward, stateChanged):
         lastActionList = self.lastAction.split()
         if not (reward == 0.0):
             return reward * 1000.0
         elif self.lastAction == "undo":
             return -500.0
+        elif not stateChanged:
+            return -700.0
         elif "eat" in lastActionList:
             return -500.0
         elif "take" in lastActionList:
