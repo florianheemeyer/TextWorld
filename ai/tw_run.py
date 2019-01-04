@@ -91,7 +91,7 @@ if __name__ == '__main__':
     if (args.save != ""):
         agent.saveState(args.save)
     
-    for no_step in range(10):
+    for no_step in range(100):
             print(str(game_state))
             command = agent.act(game_state, reward, done)
             #print("Intermediate reward: " + str(game_state.intermediate_reward))
