@@ -210,7 +210,7 @@ class WordAttributeInference():
         return wn.synset("container.n.01") in self.hypernyms
 
     def soundsLikeFurniture(self):
-        return wn.synset("furniture.n.01") in self.hypernyms or wn.synset("shelf.n.01") in self.hypernyms
+        return wn.synset("furniture.n.01") in self.hypernyms or wn.synset("shelf.n.01") in self.hypernyms or wn.synset("white_goods.n.01") in self.hypernyms
 
     def     soundsLikeKitchenUtensil(self):
         return wn.synset("kitchen_utensil.n.01") in self.hypernyms
