@@ -29,7 +29,8 @@ def parse_args():
                         help="Load action value table from file of given name before training")
     parser.add_argument("--use-admissable-commands", action="store_true",
                         help="Use admissable commands from textworld")
-
+    parser.add_argument("--no-generated-command-check", action="store_true",
+                        help="Do not notify if the next policy commmand is not among the generated commands (improves performance)")
     return parser.parse_args()
 
 
@@ -49,8 +50,9 @@ if __name__ == '__main__':
     for no_episode in range(args.episodes):
         print("Episode "+ str(no_episode))
         agent.reset(env)  # Tell the agent a new episode is starting.
-        env.activate_state_tracking()
-        env.compute_intermediate_reward()
+        if not (args.use_admissable_commands or args.no_generated_command_check):
+            env.activate_state_tracking()
+            env.compute_intermediate_reward()
         game_state = env.reset()  # Start new episode.
         reward = 0
         done = False
