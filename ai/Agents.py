@@ -413,6 +413,9 @@ class ReinforcementAgent3(Agent):
         if "put" in self.lastAction or "drop" in self.lastAction or "insert" in self.lastAction:
             return self.undoPutInsertDrop()
 
+        if "unlock" in self.lastAction:
+            self.lastAction = "open " + self.lastAction.split()[1]
+            return self.lastAction
         
         mappedState = self.mapGameState(game_state)
         stateNumber = mappedState[0]
