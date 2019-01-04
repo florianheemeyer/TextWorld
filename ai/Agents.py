@@ -429,7 +429,7 @@ class ReinforcementAgent3(Agent):
             legalActions = game_state.admissible_commands
             prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
 
-        if not game_state.policy_commands[0] in prunedActions:
+        if game_state._env._compute_intermediate_reward and not game_state.policy_commands[0] in prunedActions:
             print("Policy command not in generated actions: " + game_state.policy_commands[0])
             print(game_state.description)
         
