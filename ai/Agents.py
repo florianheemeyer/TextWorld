@@ -493,7 +493,11 @@ class ReinforcementAgent3(Agent):
             return self.stateDictionary[representation]
         else:
             value = len(self.stateDictionary)
-            prunedActions = NaturalLanguageProcessing.getCommands(game_state.description, sortedInventory)
+            if self.use_admissable_commands:
+                legalActions = game_state.admissible_commands
+                prunedActions = self.pruneAdmissibleCommandsLoosely(legalActions)
+            else:
+                prunedActions = NaturalLanguageProcessing.getCommands(game_state.description, sortedInventory)
             self.stateDictionary[representation] = [value, prunedActions]
             self.initGameStateValues(value,prunedActions)
             return [value, prunedActions]
