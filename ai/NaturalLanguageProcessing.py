@@ -33,7 +33,7 @@ def getCommands(description, inventory):
 
     relevantNouns = set()
     for word in desc:
-        if word.pos_ == "NOUN":
+        if word.pos_ == "NOUN" or "safe" in word.text:
             relevantNouns.add(word.text)
 
     containers = set()
