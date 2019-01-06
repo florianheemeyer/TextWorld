@@ -41,6 +41,7 @@ def getCommands(description, inventory):
     takeables = set()
     lockables = set()
     openables = set()
+    edibles = set()
     for noun in relevantNouns:
         attributes = WordAttributeInference.factory(noun)
         if attributes.container:
@@ -53,8 +54,11 @@ def getCommands(description, inventory):
             openables.add(noun)
 
     for item in inv:
-        if WordAttributeInference.factory(item).key:
+        attributes = WordAttributeInference.factory(item)
+        if attributes.key:
             keys.add(item)
+        if attributes.edible:
+            edibles.add(item)
 
     commands = []
 
@@ -79,6 +83,9 @@ def getCommands(description, inventory):
 
     for takeable in takeables:
         commands.append("take " + takeable)
+
+    for edible in edibles:
+        commands.append("eat " + edible)
 
     commands += ["go east", "go west", "go south", "go north"]
 
@@ -173,6 +180,7 @@ class WordAttributeInference():
         self.takeable = self.isTakeable()
         self.lockable = self.isLockable()
         self.openable = self.isOpenable()
+        self.edible = self.isEdible()
 
     def __str__(self):
         return self.word + " Container: " + str(self.container) + " Key: " + str(self.key) + \
@@ -197,6 +205,9 @@ class WordAttributeInference():
     def isOpenable(self):
         return self.soundsLikeContainer() or self.soundsLikeDoor() or self.soundsLikeFurniture()
 
+    def isEdible(self):
+        return self.soundsEdible()
+
     def soundsLikeKey(self):
         return "key" in self.word or wn.synset("key.n.01") in self.hypernyms
 
@@ -212,8 +223,11 @@ class WordAttributeInference():
     def soundsLikeFurniture(self):
         return wn.synset("furniture.n.01") in self.hypernyms or wn.synset("shelf.n.01") in self.hypernyms or wn.synset("white_goods.n.01") in self.hypernyms
 
-    def     soundsLikeKitchenUtensil(self):
+    def soundsLikeKitchenUtensil(self):
         return wn.synset("kitchen_utensil.n.01") in self.hypernyms
+
+    def soundsEdible(self):
+        return wn.synset("food.n.01") in self.hypernyms or wn.synset("food.n.02") in self.hypernyms
 
 if __name__ == '__main__':
     
