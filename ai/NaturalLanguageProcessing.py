@@ -217,7 +217,7 @@ class WordAttributeInference():
         return "room" in self.word or wn.synset("room.n.01") in self.hypernyms
 
     def soundsLikeDoor(self):
-        return "door" in self.word or wn.synset("barrier.n.01") in self.hypernyms or wn.synset("entrance.n.01") in self.hypernyms
+        return "door" in self.word or wn.synset("barrier.n.01") in self.hypernyms or wn.synset("entrance.n.01") in self.hypernyms or wn.synset("passage.n.03") in self.hypernyms
 
     def soundsLikeContainer(self):
         return wn.synset("container.n.01") in self.hypernyms
