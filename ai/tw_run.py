@@ -8,7 +8,7 @@ import textworld
 import Agents
 import argparse
 
-def parse_args():
+def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("game")
     parser.add_argument("--episodes", type=int, default=20, metavar="EPISODES",
@@ -31,11 +31,10 @@ def parse_args():
                         help="Use admissable commands from textworld")
     parser.add_argument("--no-generated-command-check", action="store_true",
                         help="Do not notify if the next policy commmand is not among the generated commands (improves performance)")
-    return parser.parse_args()
+    return parser.parse_args(args=args)
 
-
-if __name__ == '__main__':
-    args = parse_args()
+def main(args=None):
+    args = parse_args(args)
 
     env = textworld.start(args.game)  # Start an existing game.
     agent = Agents.ReinforcementAgent3(args.state_space, args.action_space, args.learning_rate, args.discount, args.use_admissable_commands)
@@ -103,11 +102,13 @@ if __name__ == '__main__':
             if done:
                 print(str(game_state))
                 break
-    
-    
+
     env.close()
 
+    return no_step, done
 
+if __name__ == '__main__':
+    main()
 
 
 
