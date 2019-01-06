@@ -112,6 +112,8 @@ def identifyInOnRelationships(desc):
     objectsTakenCareOf = []
     for token in desc:
         if str.lower(token.text) == "in" or str.lower(token.text) == "on":
+            if len(list(token.children)) == 0:
+                continue
             child = next(token.children)
             if child.pos_ == "NOUN" and not(str.lower(child.text) == "floor" or str.lower(child.text) == "ground"):
                 takeCommandGenerated = False
